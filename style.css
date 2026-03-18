@@ -179,16 +179,26 @@ select { cursor: pointer; }
 #upload-placeholder p { color: var(--text3); }
 #upload-placeholder.drag-over { background: var(--accent-dim); border: 2px dashed var(--accent); border-radius: var(--radius); }
 
-/* ─── Canvas / Text Layer ───────────────────────── */
-#canvas-wrap {
+/* ─── Continuous Scroll Pages ───────────────────── */
+#pdf-pages-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+#pdf-pages-container.hidden { display: none; }
+
+.pdf-page-wrapper {
   position: relative;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
   box-shadow: 0 4px 40px rgba(0,0,0,.6);
   border-radius: 4px;
-  overflow: hidden;
+  background: #fff;
+  margin: 0 auto;
 }
-#canvas-wrap.hidden { display: none; }
-#pdf-canvas { display: block; }
+.pdf-page-wrapper canvas { display: block; }
 
 /* ─── Translation Panel (side-by-side) ──────────── */
 #trans-panel {
