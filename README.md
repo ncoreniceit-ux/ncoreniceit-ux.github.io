@@ -52,3 +52,8 @@ Người dùng có 2 tuỳ chọn sử dụng dựa trên nhu cầu:
 - *Feature*: Di dời triệt để mô hình Page-by-Page sang "Webtoon-style" Cuộn trơn tru bất tận. Sử dụng `IntersectionObserver` tối ưu hoá bộ nhớ canvas thay cho việc vẽ mọi trang.
 - *Feature*: Ứng dụng chẻ nhỏ bộ công cụ API MyMemory (bị giới hạn 500 kí tự), sau đó loại bỏ hoàn toàn và di cư sang free API của Google Translate (GTX endpoint) cho phép không giới hạn độ dài dịch.
 - Liên kết chặt chẽ chế độ dịch song song và scroll: tự động debounce 300ms và chỉ dịch trang ngay trước mặt người dùng đang dừng mắt, giúp ứng dụng không bị spam API.
+
+**[v1.5] Thư viện số Offline & Trải nghiệm Ứng dụng gốc (App-like UX)**
+- *Feature*: Phát triển Dashboard "Tủ Sách" thay thế màn hình chờ rỗng tuếch ban đầu.
+- *Storage Mechanism*: Thiết lập cơ sở dữ liệu `IndexedDB` tích hợp trực tiếp trên trình duyệt để lưu trữ Binary/ArrayBuffer của file PDF vĩnh viễn (Offline Storage).
+- Người dùng luôn giữ nguyên File và Lịch sử (Tiến độ trang, thẻ Note riêng biệt) kể cả sau khi đóng/tải lại trang trình duyệt mà không cần phải uploade lại sách từ ổ cứng, mang tới trải nghiệm 100% như app đọc sách trên hệ điều hành tĩnh.
