@@ -142,6 +142,7 @@ async function loadPDF(file_or_db) {
   
   const p1 = await pdfDoc.getPage(1);
   const vp1 = p1.getViewport({ scale: curScale });
+  window.pdfAspect = vp1.width / vp1.height;
   
   for (let i = 1; i <= totPages; i++) {
     const wrap = document.createElement('div');
@@ -180,14 +181,14 @@ async function loadPDF(file_or_db) {
   setupPageObserver();
 
   curPage = saved;
-  updateActiveThumbnail(curPage);
   $('page-info').textContent = `Trang ${curPage} / ${totPages}`;
   
   buildThumbnails();
+  updateActiveThumbnail(curPage, false);
   updateNotesBadge();
   if (saved > 1) {
     showToast(`📌 Tiếp tục từ trang ${saved}`);
-    setTimeout(() => scrollToPage(saved), 100);
+    scrollToPage(saved, false);
   } else {
     $('reader').scrollTo(0,0);
   }
@@ -300,10 +301,10 @@ async function renderPage(n) {
   } catch (e) { console.error('Render page', n, e); }
 }
 
-function scrollToPage(n) {
+function scrollToPage(n, smooth = true) {
   if (n < 1 || n > totPages) return;
   const wrap = $(`page-wrap-${n}`);
-  if (wrap) wrap.scrollIntoView({ behavior: 'smooth' });
+  if (wrap) wrap.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant' });
 }
 
 // ── Click overlay: paragraph detection from getTextContent ──────
@@ -523,6 +524,7 @@ function buildThumbnails() {
     if (readPages.includes(i)) wrap.classList.add('is-read');
 
     const canvas  = document.createElement('canvas');
+    if (window.pdfAspect) canvas.style.aspectRatio = window.pdfAspect;
     const label   = document.createElement('div');
     label.className = 'thumb-label';
     label.textContent = `Trang ${i}`;
@@ -532,6 +534,8 @@ function buildThumbnails() {
     wrap.addEventListener('click', () => scrollToPage(i));
     list.appendChild(wrap);
   }
+  
+  updateScrollbarMap();
 
   // Intersection Observer for lazy render
   const obs = new IntersectionObserver(entries => {
@@ -569,12 +573,12 @@ function addNoteBadge(wrap, n) {
   }
 }
 
-function updateActiveThumbnail(n) {
+function updateActiveThumbnail(n, smooth = true) {
   document.querySelectorAll('.thumb-item').forEach(el => {
     el.classList.toggle('active', parseInt(el.dataset.page) === n);
   });
   const active = $('thumb-list').querySelector('.thumb-item.active');
-  active?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  active?.scrollIntoView({ block: 'nearest', behavior: smooth ? 'smooth' : 'instant' });
 }
 
 // ─────────────────────────────────────────────
@@ -650,11 +654,58 @@ function markPageAsRead(n) {
   
   const thumb = document.querySelector(`.thumb-item[data-page="${n}"]`);
   if (thumb) thumb.classList.add('is-read');
+  
+  updateScrollbarMap();
 }
 
 // ─────────────────────────────────────────────
 //  NOTES
 // ─────────────────────────────────────────────
+function updateScrollbarMap() {
+  if (!totPages) return;
+  const posData = JSON.parse(localStorage.getItem(SK.POS(curFile))) || {};
+  const readPages = posData.read || [];
+  
+  if (readPages.length === 0) {
+    const styleEl = document.getElementById('read-map-style');
+    if (styleEl) styleEl.remove();
+    return;
+  }
+
+  let stops = [];
+  let isCurrentlyRead = readPages.includes(1);
+  let currentStart = 0;
+
+  for (let i = 2; i <= totPages + 1; i++) {
+    const isRead = readPages.includes(i);
+    if (isRead !== isCurrentlyRead || i > totPages) {
+      const end = ((i - 1) / totPages) * 100;
+      const color = isCurrentlyRead ? 'var(--accent)' : 'var(--surface2)';
+      stops.push(`${color} ${currentStart.toFixed(3)}%`, `${color} ${end.toFixed(3)}%`);
+      isCurrentlyRead = isRead;
+      currentStart = end;
+    }
+  }
+  
+  const gradient = `linear-gradient(to bottom, ${stops.join(', ')})`;
+  
+  let styleEl = document.getElementById('read-map-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'read-map-style';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = `#sidebar::-webkit-scrollbar-track { background: ${gradient} !important; border-radius: 0; }`;
+  
+  const sb = $('sidebar');
+  if (sb) {
+    const o = sb.style.overflowY;
+    sb.style.overflowY = 'hidden';
+    void sb.offsetHeight; // force reflow to clear WebKit scrollbar cache
+    sb.style.overflowY = o || 'auto';
+  }
+}
+
 function getNotes() {
   if (!curFile) return [];
   try { return JSON.parse(localStorage.getItem(SK.NOTES(curFile))) || []; }
