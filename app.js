@@ -1177,21 +1177,35 @@ async function renderLibrary() {
 
     bookData.sort((a,b) => b.lastRead - a.lastRead).forEach(book => {
       const notesCount = (JSON.parse(localStorage.getItem(SK.NOTES(book.id))) || []).length;
-      const readDate = new Date(book.lastRead).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+      
+      const dateObj = new Date(book.lastRead);
+      const DD = String(dateObj.getDate()).padStart(2, '0');
+      const MM = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const YYYY = dateObj.getFullYear();
+      const HH = String(dateObj.getHours()).padStart(2, '0');
+      const mm = String(dateObj.getMinutes()).padStart(2, '0');
+      const readDate = `${DD}/${MM}/${YYYY} ${HH}:${mm}`;
+      
+      const hue = Array.from(book.name).reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360;
+      const initials = book.name.substring(0, 2).toUpperCase();
       
       const card = document.createElement('div');
       card.className = 'lib-card';
       card.innerHTML = `
-        <div class="lib-icon">📚</div>
-        <div class="lib-title" title="${book.name}">${book.name}</div>
-        <div class="lib-meta" style="margin-bottom: 8px;">
-          <span>Lần cuối: ${readDate}</span>
+        <div class="lib-cover" style="background: linear-gradient(135deg, hsl(${hue}, 60%, 50%), hsl(${hue + 30}, 60%, 30%))">
+          ${initials}
         </div>
-        <div class="lib-meta" style="border-top: none; padding-top: 0;">
-          <span>Trang ${book.savedPage} / ${book.pages || '?'}</span>
-          ${notesCount > 0 ? `<span class="lib-meta-tag">📝 ${notesCount} note</span>` : ''}
+        <div class="lib-content">
+          <div class="lib-title" title="${book.name}">${book.name}</div>
+          <div class="lib-meta" style="margin-bottom: 8px;">
+            <span>Lần cuối: ${readDate}</span>
+          </div>
+          <div class="lib-meta" style="border-top: none; padding-top: 0;">
+            <span>Trang ${book.savedPage} / ${book.pages || '?'}</span>
+            ${notesCount > 0 ? `<span class="lib-meta-tag">📝 ${notesCount} note</span>` : ''}
+          </div>
+          <button class="note-del-btn" style="align-self: flex-end; margin-top: 10px;" title="Xóa khỏi tủ sách">🗑️ Xoá</button>
         </div>
-        <button class="note-del-btn" style="align-self: flex-end; margin-top: 10px;" title="Xóa khỏi tủ sách">🗑️ Xoá</button>
       `;
       // card click
       card.addEventListener('click', e => {
