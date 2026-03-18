@@ -1,7 +1,7 @@
 'use strict';
 
 // ══════════════════════════════════════════════
-//  LitRead – app.js  |  Main Application Logic
+//  ZenRead – app.js  |  Main Application Logic
 // ══════════════════════════════════════════════
 
 // ─── PDF.js Setup ────────────────────────────────────────────
@@ -51,7 +51,7 @@ function fmtDate(iso) {
 // ─────────────────────────────────────────────
 //  INDEXED DB - LIBRARY
 // ─────────────────────────────────────────────
-const DB_NAME = 'LitReadDB';
+const DB_NAME = 'ZenReadDB';
 const DB_VER = 1;
 const STORE_NAME = 'books';
 
@@ -113,7 +113,7 @@ async function loadPDF(file_or_db) {
     showToast('⚠️ Vui lòng chọn file PDF hợp lệ'); return;
   }
   curFile = fileName;
-  document.title = `${fileName} – LitRead`;
+  document.title = `${fileName} – ZenRead`;
 
   const buf = isDB ? file_or_db.data : await file_or_db.arrayBuffer();
   const arr = new Uint8Array(buf);
@@ -1252,7 +1252,7 @@ async function changeZoom(delta) {
 //  LIBRARY UI & INIT
 // ─────────────────────────────────────────────
 async function renderLibrary() {
-  document.title = 'LitRead – Tủ Sách';
+  document.title = 'ZenRead – Tủ Sách';
   const books = await getBooksFromDB();
   $('library-view').classList.remove('hidden');
   const grid = $('library-grid');

@@ -1,6 +1,6 @@
 'use strict';
 
-const DB_NAME = 'litread-sw-db';
+const DB_NAME = 'zenread-sw-db';
 const DB_VERSION = 1;
 const STORE = 'config';
 let reminderTimer = null;
@@ -57,10 +57,10 @@ async function checkReminder() {
   if (cfg.lastFired === nowKey) return;
 
   await dbPut({ ...cfg, lastFired: nowKey });
-  await self.registration.showNotification('LitRead 📚', {
+  await self.registration.showNotification('ZenRead ✨', {
     body: '⏰ Đến giờ đọc sách rồi! Mở app và đọc nhé!',
-    icon: './icon-192.png',
-    badge: './icon-192.png',
+    icon: './icon.svg',
+    badge: './icon.svg',
     tag: 'reading-reminder',
     requireInteraction: false,
     data: { url: './' }
@@ -86,9 +86,9 @@ self.addEventListener('message', async e => {
   }
 
   if (type === 'TEST_NOTIFICATION') {
-    await self.registration.showNotification('LitRead 📚', {
+    await self.registration.showNotification('ZenRead ✨', {
       body: '✅ Thông báo hoạt động tốt! Bạn đã cài thành công.',
-      icon: './icon-192.png',
+      icon: './icon.svg',
       tag: 'test-notif',
       data: { url: './' }
     });

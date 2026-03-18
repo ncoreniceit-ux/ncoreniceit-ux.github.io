@@ -1,6 +1,6 @@
 {
-  "name": "LitRead – PDF Reader",
-  "short_name": "LitRead",
+  "name": "ZenRead – PDF Reader",
+  "short_name": "ZenRead",
   "description": "Đọc PDF thông minh – dịch thuật, ghi chú, KPI đọc sách",
   "start_url": "./index.html",
   "display": "standalone",
@@ -8,7 +8,11 @@
   "theme_color": "#00d4aa",
   "orientation": "any",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
   ]
 }
