@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#00d4aa">
+  <meta name="description" content="LitRead – Đọc PDF thông minh: dịch câu, ghi chú, KPI đọc sách">
+  <title>LitRead – PDF Reader</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════════════ HEADER ══════════════════ -->
+  <header id="header">
+    <div class="header-brand">
+      <span class="brand-icon">📖</span>
+      <span class="brand-name">LitRead</span>
+    </div>
+    <div class="header-tools">
+      <label class="tool-btn" id="lbl-upload" title="Mở PDF">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+        </svg>
+        <input type="file" id="file-input" accept=".pdf" hidden>
+      </label>
+      <div class="tool-divider"></div>
+      <button class="tool-btn" id="btn-notes" title="Ghi chú">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        <span class="badge hidden" id="notes-badge">0</span>
+      </button>
+      <button class="tool-btn" id="btn-kpi" title="Thống kê KPI">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+      </button>
+      <button class="tool-btn" id="btn-settings" title="Nhắc nhở & Cài đặt">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        </svg>
+      </button>
+      <div class="tool-divider"></div>
+      <!-- Translation mode toggle -->
+      <div class="trans-mode-group" id="trans-mode-group">
+        <button class="tm-btn active" id="btn-mode-click" title="Click vào đoạn văn để dịch">👆 Click</button>
+        <button class="tm-btn" id="btn-mode-parallel" title="Hiện bản dịch song song">📄 Song song</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════ LAYOUT ══════════════════ -->
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div id="thumb-list"></div>
+    </aside>
+
+    <!-- READER -->
+    <main id="reader">
+
+      <!-- Upload placeholder -->
+      <div id="upload-placeholder">
+        <div class="placeholder-icon">📚</div>
+        <h2>Mở file PDF để bắt đầu</h2>
+        <p>Kéo thả hoặc nhấn để chọn file PDF</p>
+        <label class="btn-primary" for="file-input">Chọn file PDF</label>
+      </div>
+
+      <!-- Canvas area -->
+      <div id="canvas-wrap" class="hidden">
+        <canvas id="pdf-canvas"></canvas>
+        <div id="text-layer"></div>
+      </div>
+
+      <!-- Side-by-side translation panel -->
+      <div id="trans-panel" class="hidden">
+        <div class="tp-panel-head">
+          <span class="tp-panel-title">🌐 Bản dịch – Trang <span id="tp-page-num">1</span></span>
+          <div class="tp-panel-status" id="tp-status"></div>
+        </div>
+        <div class="view-split-group" id="view-split-group">
+          <button class="vs-btn" data-view="pdf">PDF</button>
+          <button class="vs-btn active" data-view="both">Cả hai</button>
+          <button class="vs-btn" data-view="vi">Tiếng Việt</button>
+        </div>
+        <div id="tp-content" class="tp-panel-body"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ══════════════════ FOOTER ══════════════════ -->
+  <footer id="footer" class="hidden">
+    <div class="footer-nav">
+      <button class="nav-btn" id="btn-prev">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span id="page-info">Trang 1 / 1</span>
+      <button class="nav-btn" id="btn-next">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="footer-zoom">
+      <button class="zoom-btn" id="btn-zoom-out">−</button>
+      <span id="zoom-label">130%</span>
+      <button class="zoom-btn" id="btn-zoom-in">+</button>
+    </div>
+    <div class="footer-actions">
+      <button class="btn-note-quick" id="btn-add-note">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Ghi chú
+      </button>
+    </div>
+  </footer>
+
+  <!-- ══════════════════ TRANSLATION POPUP ══════════════════ -->
+  <div id="trans-popup" class="hidden">
+    <div class="tp-header">
+      <span class="tp-label">🌐 Dịch sang tiếng Việt</span>
+      <div class="tp-controls">
+        <button id="btn-copy-trans" title="Sao chép bản dịch">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+        <button id="btn-close-trans">✕</button>
+      </div>
+    </div>
+    <div id="tp-original"></div>
+    <div class="tp-divider"></div>
+    <div id="tp-result"><span class="tp-loading">⏳ Đang dịch...</span></div>
+  </div>
+
+  <!-- ══════════════════ PANEL OVERLAY ══════════════════ -->
+  <div id="panel-overlay" class="hidden"></div>
+
+  <!-- PANEL: NOTES -->
+  <aside id="panel-notes" class="panel hidden" data-panel="notes">
+    <div class="panel-head">
+      <h3>📝 Ghi chú</h3>
+      <button class="panel-close-btn" data-close="notes">✕</button>
+    </div>
+    <div class="panel-filter-bar">
+      <select id="notes-filter"><option value="all">Tất cả trang</option></select>
+    </div>
+    <div class="panel-body" id="notes-list"></div>
+    <div class="panel-foot">
+      <button class="btn-primary fw" id="btn-new-note">+ Thêm ghi chú</button>
+    </div>
+  </aside>
+
+  <!-- PANEL: KPI -->
+  <aside id="panel-kpi" class="panel hidden" data-panel="kpi">
+    <div class="panel-head">
+      <h3>📊 Thống kê đọc sách</h3>
+      <button class="panel-close-btn" data-close="kpi">✕</button>
+    </div>
+    <div class="panel-body" id="kpi-body"></div>
+  </aside>
+
+  <!-- PANEL: SETTINGS -->
+  <aside id="panel-settings" class="panel hidden" data-panel="settings">
+    <div class="panel-head">
+      <h3>⚙️ Cài đặt & Nhắc nhở</h3>
+      <button class="panel-close-btn" data-close="settings">✕</button>
+    </div>
+    <div class="panel-body" id="settings-body"></div>
+  </aside>
+
+  <!-- ══════════════════ MODAL: ADD NOTE ══════════════════ -->
+  <div id="modal-note" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>✏️ Thêm ghi chú</h3>
+        <button id="btn-close-note-modal" class="modal-x">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="note-page-tag">Trang <span id="note-page-num">—</span></p>
+        <textarea id="note-text" placeholder="Viết ghi chú…" rows="5"></textarea>
+        <div class="color-picker">
+          <span>Màu:</span>
+          <button class="cdot cdot-yellow active" data-color="yellow"></button>
+          <button class="cdot cdot-green" data-color="green"></button>
+          <button class="cdot cdot-red" data-color="red"></button>
+          <button class="cdot cdot-purple" data-color="purple"></button>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-ghost" id="btn-cancel-note">Huỷ</button>
+        <button class="btn-primary" id="btn-save-note">Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SET KPI GOAL -->
+  <div id="modal-goal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>🎯 Đặt mục tiêu đọc</h3>
+        <button id="btn-close-goal-modal" class="modal-x">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label>Trang tối thiểu mỗi ngày</label>
+          <input type="number" id="inp-daily" min="1" max="999" value="20">
+        </div>
+        <div class="form-row">
+          <label>Trang tối thiểu mỗi tuần</label>
+          <input type="number" id="inp-weekly" min="1" max="9999" value="100">
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-ghost" id="btn-cancel-goal">Huỷ</button>
+        <button class="btn-primary" id="btn-save-goal">Lưu mục tiêu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+</div><!-- #app -->
+<script src="app.js"></script>
+</body>
+</html>
