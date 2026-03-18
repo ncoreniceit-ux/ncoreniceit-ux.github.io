@@ -1163,17 +1163,32 @@ async function renderLibrary() {
     $('library-empty').classList.remove('hidden');
   } else {
     $('library-empty').classList.add('hidden');
-    books.sort((a,b) => b.addedAt - a.addedAt).forEach(book => {
-      const savedPage = getPosition(book.id) || 1;
+    
+    // Decorate with reading history and sort
+    const bookData = books.map(book => {
+      let page = 1, ts = book.addedAt;
+      try {
+        const d = JSON.parse(localStorage.getItem(SK.POS(book.id)));
+        if (d && d.page) page = d.page;
+        if (d && d.ts) ts = d.ts;
+      } catch {}
+      return { ...book, savedPage: page, lastRead: ts };
+    });
+
+    bookData.sort((a,b) => b.lastRead - a.lastRead).forEach(book => {
       const notesCount = (JSON.parse(localStorage.getItem(SK.NOTES(book.id))) || []).length;
+      const readDate = new Date(book.lastRead).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
       
       const card = document.createElement('div');
       card.className = 'lib-card';
       card.innerHTML = `
         <div class="lib-icon">📚</div>
         <div class="lib-title" title="${book.name}">${book.name}</div>
-        <div class="lib-meta">
-          <span>Trang ${savedPage} / ${book.pages || '?'}</span>
+        <div class="lib-meta" style="margin-bottom: 8px;">
+          <span>Lần cuối: ${readDate}</span>
+        </div>
+        <div class="lib-meta" style="border-top: none; padding-top: 0;">
+          <span>Trang ${book.savedPage} / ${book.pages || '?'}</span>
           ${notesCount > 0 ? `<span class="lib-meta-tag">📝 ${notesCount} note</span>` : ''}
         </div>
         <button class="note-del-btn" style="align-self: flex-end; margin-top: 10px;" title="Xóa khỏi tủ sách">🗑️ Xoá</button>
