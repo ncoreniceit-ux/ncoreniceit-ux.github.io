@@ -57,3 +57,5 @@ Người dùng có 2 tuỳ chọn sử dụng dựa trên nhu cầu:
 - *Feature*: Phát triển Dashboard "Tủ Sách" thay thế màn hình chờ rỗng tuếch ban đầu.
 - *Storage Mechanism*: Thiết lập cơ sở dữ liệu `IndexedDB` tích hợp trực tiếp trên trình duyệt để lưu trữ Binary/ArrayBuffer của file PDF vĩnh viễn (Offline Storage).
 - Người dùng luôn giữ nguyên File và Lịch sử (Tiến độ trang, thẻ Note riêng biệt) kể cả sau khi đóng/tải lại trang trình duyệt mà không cần phải uploade lại sách từ ổ cứng, mang tới trải nghiệm 100% như app đọc sách trên hệ điều hành tĩnh.
+- Tính năng Sorting Thông minh: Những quyển sách mới đọc hoặc tương tác gần đây nhất sẽ luôn tự động được đẩy lên đầu tiên trong Danh sách, kèm theo mốc thời gian chuẩn xác "Lần cuối: DD/MM/YYYY HH:mm".
+- Chỉnh trang UI/UX: Loại bỏ các icon mặc định lặp lại, thay thế bằng thuật toán tự động sinh Bìa Sách dạng Gradient (Dynamic Cover) kết hợp sử dụng ký tự đầu tiên của tên sách, mang lại hiệu ứng thị giác chuyên nghiệp.
