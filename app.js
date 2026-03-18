@@ -320,12 +320,18 @@ async function buildClickOverlay(page, container, vp) {
 // ── Robust Translation Helper for Long Texts ────────────────
 async function safeTranslate(text) {
   if (!text || text.length < 2) return text;
+
+  const doGTXFetch = async (txt) => {
+    const q = encodeURIComponent(txt);
+    const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${q}`);
+    const d = await r.json();
+    return d[0].map(item => item[0]).join('');
+  };
+
   if (text.length <= 450) {
     try {
-      const q = encodeURIComponent(text);
-      const r = await fetch(`https://api.mymemory.translated.net/get?q=${q}&langpair=en|vi`);
-      const d = await r.json();
-      return d?.responseData?.translatedText || text;
+      const tr = await doGTXFetch(text);
+      return tr || text;
     } catch { return text; }
   }
 
@@ -337,7 +343,6 @@ async function safeTranslate(text) {
   for (const s of sentences) {
     if (cur.length + s.length > 450) {
       if (cur) chunks.push(cur.trim());
-      // If a single sentence is > 450 (rare but possible), hard slice it
       cur = s.length > 450 ? s.slice(0, 450) : s;
     } else {
       cur += s;
@@ -349,12 +354,10 @@ async function safeTranslate(text) {
   let res = [];
   for (const c of chunks) {
     try {
-      const q = encodeURIComponent(c);
-      const r = await fetch(`https://api.mymemory.translated.net/get?q=${q}&langpair=en|vi`);
-      const d = await r.json();
-      res.push(d?.responseData?.translatedText || c);
+      const tr = await doGTXFetch(c);
+      res.push(tr || c);
     } catch { res.push(c); }
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise(resolve => setTimeout(resolve, 200));
   }
   return res.join(' ');
 }
