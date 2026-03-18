@@ -17,8 +17,8 @@
 
   <!-- ══════════════════ HEADER ══════════════════ -->
   <header id="header">
-    <div class="header-brand">
-      <span class="brand-icon">📖</span>
+    <div class="header-brand" id="btn-home" style="cursor: pointer;" title="Về Tủ Sách">
+      <span class="brand-icon">📚</span>
       <span class="brand-name">LitRead</span>
     </div>
     <div class="header-tools">
@@ -73,12 +73,23 @@
     <!-- READER -->
     <main id="reader">
 
-      <!-- Upload placeholder -->
-      <div id="upload-placeholder">
-        <div class="placeholder-icon">📚</div>
-        <h2>Mở file PDF để bắt đầu</h2>
-        <p>Kéo thả hoặc nhấn để chọn file PDF</p>
-        <label class="btn-primary" for="file-input">Chọn file PDF</label>
+      <!-- Library View -->
+      <div id="library-view">
+        <div class="library-header">
+          <h2>Tủ sách của bạn</h2>
+          <label class="btn-primary" for="file-input">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Tải sách mới
+          </label>
+        </div>
+        <div id="library-grid" class="library-grid">
+          <!-- Dynamically populated books will go here -->
+        </div>
+        <div id="library-empty" class="hidden">
+          <div class="placeholder-icon">📚</div>
+          <h3>Tủ sách trống</h3>
+          <p>Kéo thả hoặc tải lên file PDF để bắt đầu đọc sách nhé!</p>
+        </div>
       </div>
 
       <!-- Canvas area -->

@@ -160,24 +160,61 @@ select { cursor: pointer; }
 #reader::-webkit-scrollbar-track { background: transparent; }
 #reader::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 99px; }
 
-/* ─── Upload Placeholder ────────────────────────── */
-#upload-placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  color: var(--text2);
-  text-align: center;
-  padding: 40px;
+/* ─── Library View ────────────────────────────── */
+#library-view {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
-#upload-placeholder.hidden { display: none; }
-.placeholder-icon { font-size: 64px; margin-bottom: 8px; opacity: .6; }
-#upload-placeholder h2 { font-size: 22px; font-weight: 600; color: var(--text1); }
-#upload-placeholder p { color: var(--text3); }
-#upload-placeholder.drag-over { background: var(--accent-dim); border: 2px dashed var(--accent); border-radius: var(--radius); }
+#library-view.hidden { display: none; }
+.library-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 30px;
+}
+.library-header h2 { font-size: 24px; font-weight: 600; color: var(--text1); }
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+.lib-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: var(--trans);
+  display: flex; flex-direction: column;
+}
+.lib-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+}
+.lib-icon { font-size: 36px; margin-bottom: 12px; }
+.lib-title { font-size: 15px; font-weight: 600; color: var(--text1); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lib-meta { font-size: 13px; color: var(--text3); display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); }
+.lib-meta-tag { background: var(--surface3); padding: 4px 8px; border-radius: 6px; color: var(--text2); }
+
+#library-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+}
+.placeholder-icon { font-size: 64px; margin-bottom: 16px; opacity: .6; }
+#library-empty h3 { font-size: 20px; color: var(--text1); margin-bottom: 8px; }
+
+#reader.drag-over::after {
+  content: 'Thả file PDF vào đây';
+  position: absolute; inset: 0;
+  background: rgba(0,212,170,.1);
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius);
+  z-index: 1000; display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 600; color: var(--accent);
+  backdrop-filter: blur(4px);
+}
 
 /* ─── Continuous Scroll Pages ───────────────────── */
 #pdf-pages-container {

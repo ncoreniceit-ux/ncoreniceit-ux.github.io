@@ -49,27 +49,85 @@ function fmtDate(iso) {
 }
 
 // ─────────────────────────────────────────────
-//  FILE UPLOAD
+//  INDEXED DB - LIBRARY
 // ─────────────────────────────────────────────
-async function loadPDF(file) {
-  if (!file || file.type !== 'application/pdf') {
+const DB_NAME = 'LitReadDB';
+const DB_VER = 1;
+const STORE_NAME = 'books';
+
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME, { keyPath: 'id' });
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function saveBookToDB(file, pages) {
+  return initDB().then(db => {
+    return new Promise((resolve) => {
+      file.arrayBuffer().then(buf => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put({
+          id: file.name,
+          name: file.name,
+          data: buf,
+          addedAt: Date.now(),
+          pages
+        });
+        tx.oncomplete = () => resolve();
+      });
+    });
+  });
+}
+
+function getBooksFromDB() {
+  return initDB().then(db => {
+    return new Promise((resolve) => {
+      const req = db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+    });
+  });
+}
+
+function deleteBookFromDB(id) {
+  return initDB().then(db => {
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).delete(id);
+      tx.oncomplete = () => resolve();
+    });
+  });
+}
+
+// ─────────────────────────────────────────────
+//  FILE UPLOAD & LOADING
+// ─────────────────────────────────────────────
+async function loadPDF(file_or_db) {
+  if (!file_or_db) return;
+  const isDB = !!file_or_db.id;
+  const fileName = file_or_db.name || file_or_db.id;
+
+  if (!isDB && file_or_db.type !== 'application/pdf') {
     showToast('⚠️ Vui lòng chọn file PDF hợp lệ'); return;
   }
-  curFile = file.name;
-  document.title = `${file.name} – LitRead`;
+  curFile = fileName;
+  document.title = `${fileName} – LitRead`;
 
-  const buf = await file.arrayBuffer();
+  const buf = isDB ? file_or_db.data : await file_or_db.arrayBuffer();
   const arr = new Uint8Array(buf);
 
   try {
     pdfDoc   = await pdfjsLib.getDocument({ data: arr }).promise;
     totPages = pdfDoc.numPages;
+    if (!isDB) saveBookToDB(file_or_db, totPages);
   } catch {
     showToast('❌ Không thể đọc file PDF này'); return;
   }
 
   // Show reader UI
-  $('upload-placeholder').classList.add('hidden');
+  $('library-view')?.classList.add('hidden');
   $('pdf-pages-container').classList.remove('hidden');
   $('footer').classList.remove('hidden');
   $('sidebar').classList.add('visible');
@@ -1092,16 +1150,72 @@ async function changeZoom(delta) {
 }
 
 // ─────────────────────────────────────────────
-//  INIT
+//  LIBRARY UI & INIT
 // ─────────────────────────────────────────────
+async function renderLibrary() {
+  document.title = 'LitRead – Tủ Sách';
+  const books = await getBooksFromDB();
+  $('library-view').classList.remove('hidden');
+  const grid = $('library-grid');
+  grid.innerHTML = '';
+  
+  if (books.length === 0) {
+    $('library-empty').classList.remove('hidden');
+  } else {
+    $('library-empty').classList.add('hidden');
+    books.sort((a,b) => b.addedAt - a.addedAt).forEach(book => {
+      const savedPage = getPosition(book.id) || 1;
+      const notesCount = (JSON.parse(localStorage.getItem(SK.NOTES(book.id))) || []).length;
+      
+      const card = document.createElement('div');
+      card.className = 'lib-card';
+      card.innerHTML = `
+        <div class="lib-icon">📚</div>
+        <div class="lib-title" title="${book.name}">${book.name}</div>
+        <div class="lib-meta">
+          <span>Trang ${savedPage} / ${book.pages || '?'}</span>
+          ${notesCount > 0 ? `<span class="lib-meta-tag">📝 ${notesCount} note</span>` : ''}
+        </div>
+        <button class="note-del-btn" style="align-self: flex-end; margin-top: 10px;" title="Xóa khỏi tủ sách">🗑️ Xoá</button>
+      `;
+      // card click
+      card.addEventListener('click', e => {
+        if (e.target.closest('.note-del-btn')) {
+          e.stopPropagation();
+          deleteBookFromDB(book.id).then(() => renderLibrary());
+        } else {
+          loadPDF(book);
+        }
+      });
+      grid.appendChild(card);
+    });
+  }
+}
+
 async function init() {
   initEvents();
   initTranslation();
+  
+  $('btn-home').addEventListener('click', () => {
+    $('pdf-pages-container').classList.add('hidden');
+    $('sidebar').classList.remove('visible');
+    $('trans-panel').classList.add('hidden');
+    $('footer').classList.add('hidden');
+    
+    // Stop observing to save memory
+    if (pageObserver) pageObserver.disconnect();
+    if (curPageObserver) curPageObserver.disconnect();
+    
+    renderLibrary();
+  });
+
   await registerSW();
 
   // Restore reminder settings to SW if any
   const rem = getReminder();
   if (rem.enabled) swSend('SET_REMINDER', { ...rem, key: 'reminder' });
+  
+  renderLibrary();
 }
 
 init();
