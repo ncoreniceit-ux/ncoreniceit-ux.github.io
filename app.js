@@ -159,6 +159,19 @@ async function loadPDF(file_or_db) {
     tl.className = 'text-layer';
     tl.id = `text-layer-${i}`;
     wrap.appendChild(tl);
+    
+    // Check if already read
+    const posData = JSON.parse(localStorage.getItem(SK.POS(curFile))) || {};
+    const readPages = posData.read || [];
+    if (readPages.includes(i)) {
+      wrap.classList.add('is-read');
+    }
+    
+    // Bottom marker for observer
+    const marker = document.createElement('div');
+    marker.className = 'page-bottom-marker';
+    marker.dataset.pageNum = i;
+    wrap.appendChild(marker);
 
     container.appendChild(wrap);
   }
@@ -186,11 +199,22 @@ async function loadPDF(file_or_db) {
 const renderedPages = new Set();
 let pageObserver = null;
 let curPageObserver = null;
+let readObserver = null;
 let scrollTimeout = null;
 
 function setupPageObserver() {
   if (pageObserver) pageObserver.disconnect();
   if (curPageObserver) curPageObserver.disconnect();
+  if (readObserver) readObserver.disconnect();
+
+  readObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        markPageAsRead(parseInt(e.target.dataset.pageNum));
+        readObserver.unobserve(e.target);
+      }
+    });
+  }, { root: $('reader'), threshold: 1.0 });
 
   pageObserver = new IntersectionObserver(entries => {
     entries.forEach(e => {
@@ -227,6 +251,9 @@ function setupPageObserver() {
   document.querySelectorAll('.pdf-page-wrapper').forEach(w => {
     pageObserver.observe(w);
     curPageObserver.observe(w);
+  });
+  document.querySelectorAll('.page-bottom-marker').forEach(m => {
+    readObserver.observe(m);
   });
 }
 
@@ -486,10 +513,14 @@ function applyViewMode(mode) {
 function buildThumbnails() {
   const list = $('thumb-list');
   list.innerHTML = '';
+  const posData = JSON.parse(localStorage.getItem(SK.POS(curFile))) || {};
+  const readPages = posData.read || [];
+
   for (let i = 1; i <= totPages; i++) {
     const wrap = document.createElement('div');
     wrap.className = 'thumb-item';
     wrap.dataset.page = i;
+    if (readPages.includes(i)) wrap.classList.add('is-read');
 
     const canvas  = document.createElement('canvas');
     const label   = document.createElement('div');
@@ -498,7 +529,7 @@ function buildThumbnails() {
 
     wrap.appendChild(canvas);
     wrap.appendChild(label);
-    wrap.addEventListener('click', () => renderPage(i));
+    wrap.addEventListener('click', () => scrollToPage(i));
     list.appendChild(wrap);
   }
 
@@ -594,7 +625,8 @@ async function doTranslate(text) {
 // ─────────────────────────────────────────────
 function savePosition(n) {
   if (!curFile) return;
-  localStorage.setItem(SK.POS(curFile), JSON.stringify({ page: n, ts: Date.now() }));
+  const existing = JSON.parse(localStorage.getItem(SK.POS(curFile))) || {};
+  localStorage.setItem(SK.POS(curFile), JSON.stringify({ ...existing, page: n, ts: Date.now() }));
 }
 
 function getPosition(name) {
@@ -602,6 +634,22 @@ function getPosition(name) {
     const d = JSON.parse(localStorage.getItem(SK.POS(name)));
     return d?.page || null;
   } catch { return null; }
+}
+
+function markPageAsRead(n) {
+  if (!curFile) return;
+  const existing = JSON.parse(localStorage.getItem(SK.POS(curFile))) || {};
+  const readArr = existing.read || [];
+  if (!readArr.includes(n)) {
+    readArr.push(n);
+    localStorage.setItem(SK.POS(curFile), JSON.stringify({ ...existing, read: readArr }));
+  }
+  
+  const wrap = $(`page-wrap-${n}`);
+  if (wrap) wrap.classList.add('is-read');
+  
+  const thumb = document.querySelector(`.thumb-item[data-page="${n}"]`);
+  if (thumb) thumb.classList.add('is-read');
 }
 
 // ─────────────────────────────────────────────
@@ -1166,13 +1214,14 @@ async function renderLibrary() {
     
     // Decorate with reading history and sort
     const bookData = books.map(book => {
-      let page = 1, ts = book.addedAt;
+      let page = 1, ts = book.addedAt, readCount = 0;
       try {
         const d = JSON.parse(localStorage.getItem(SK.POS(book.id)));
         if (d && d.page) page = d.page;
         if (d && d.ts) ts = d.ts;
+        if (d && d.read) readCount = d.read.length;
       } catch {}
-      return { ...book, savedPage: page, lastRead: ts };
+      return { ...book, savedPage: page, lastRead: ts, readCount };
     });
 
     bookData.sort((a,b) => b.lastRead - a.lastRead).forEach(book => {
@@ -1200,9 +1249,13 @@ async function renderLibrary() {
           <div class="lib-meta" style="margin-bottom: 8px;">
             <span>Lần cuối: ${readDate}</span>
           </div>
-          <div class="lib-meta" style="border-top: none; padding-top: 0;">
+          <div class="lib-meta" style="border-top: none; padding-top: 0; margin-bottom: 12px;">
             <span>Trang ${book.savedPage} / ${book.pages || '?'}</span>
             ${notesCount > 0 ? `<span class="lib-meta-tag">📝 ${notesCount} note</span>` : ''}
+          </div>
+          <div class="lib-progress-wrap" style="flex-grow: 1;">
+            <div style="font-size: 11px; font-weight: 600; color: var(--accent); margin-bottom: 4px;">Đã đọc ${book.pages ? Math.round((book.readCount / book.pages) * 100) : 0}%</div>
+            <div class="kpi-prog-bar" style="background: var(--surface3); height: 6px;"><div class="kpi-prog-fill" style="width: ${book.pages ? Math.round((book.readCount / book.pages) * 100) : 0}%"></div></div>
           </div>
           <button class="note-del-btn" style="align-self: flex-end; margin-top: 10px;" title="Xóa khỏi tủ sách">🗑️ Xoá</button>
         </div>

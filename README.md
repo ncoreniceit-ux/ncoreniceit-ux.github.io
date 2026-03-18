@@ -59,3 +59,8 @@ Người dùng có 2 tuỳ chọn sử dụng dựa trên nhu cầu:
 - Người dùng luôn giữ nguyên File và Lịch sử (Tiến độ trang, thẻ Note riêng biệt) kể cả sau khi đóng/tải lại trang trình duyệt mà không cần phải uploade lại sách từ ổ cứng, mang tới trải nghiệm 100% như app đọc sách trên hệ điều hành tĩnh.
 - Tính năng Sorting Thông minh: Những quyển sách mới đọc hoặc tương tác gần đây nhất sẽ luôn tự động được đẩy lên đầu tiên trong Danh sách, kèm theo mốc thời gian chuẩn xác "Lần cuối: DD/MM/YYYY HH:mm".
 - Chỉnh trang UI/UX: Loại bỏ các icon mặc định lặp lại, thay thế bằng thuật toán tự động sinh Bìa Sách dạng Gradient (Dynamic Cover) kết hợp sử dụng ký tự đầu tiên của tên sách, mang lại hiệu ứng thị giác chuyên nghiệp.
+
+**[v1.6] Hệ thống Đo lường Tiến trình Thực tế (Read Completion Tracker)**
+- *Feature*: Ứng dụng `IntersectionObserver` giám sát vị trí tuyệt đối của màn hình để tự động đánh dấu "Đã đọc" khi người dùng cuộn (scroll) qua hết chiều dài từng trang PDF.
+- Hiển thị trực quan: Trạng thái đọc được đồng bộ làm sáng viền Thumbnail (Sidebar trái) kèm dấu tick ✓ tĩnh.
+- Cập nhật Tủ sách: Tự động tính toán và vẽ thanh Tiến trình (Progress Bar), hiển thị đúng chính xác % số lượng trang thực tế đã đọc chia cho tổng số trang, giúp người dùng dễ dàng quản lý tiến độ đọc sách.
