@@ -64,3 +64,7 @@ Người dùng có 2 tuỳ chọn sử dụng dựa trên nhu cầu:
 - *Feature*: Ứng dụng `IntersectionObserver` giám sát vị trí tuyệt đối của màn hình để tự động đánh dấu "Đã đọc" khi người dùng cuộn (scroll) qua hết chiều dài từng trang PDF.
 - Hiển thị trực quan: Trạng thái đọc được đồng bộ làm sáng viền Thumbnail (Sidebar trái) kèm dấu tick ✓ tĩnh.
 - Cập nhật Tủ sách: Tự động tính toán và vẽ thanh Tiến trình (Progress Bar), hiển thị đúng chính xác % số lượng trang thực tế đã đọc chia cho tổng số trang, giúp người dùng dễ dàng quản lý tiến độ đọc sách.
+
+**[v1.6.1] Vượt Qua Giới Hạn Native WebKit (Scrollbar Map & Instant Resume)**
+- *Fix/Polish*: Cấu trúc lại bộ thuộc tính `aspect-ratio` cho phép Thumbnail giữ nguyên chiều cao dù chưa render. Gom nhóm chuỗi CSS Gradient giúp vẽ Bản đồ "Đã đọc" (Read Map) lên rãnh cuộn chính xác tới từng Pixel mà không bị WebKit từ chối vẽ lại.
+- Tối ưu Cảm giác Đọc: Loại bỏ rào cản Animation gây cản trở và chậm lag khi vừa Load PDF. App lúc này ngay lập tức *teleport* bạn đến vị trí trang đang đọc dở (Instant Resume) chỉ trong 1 khung hình.
