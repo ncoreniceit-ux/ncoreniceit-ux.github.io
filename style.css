@@ -425,7 +425,9 @@ select { cursor: pointer; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 14px 8px;
   border-bottom: 1px solid var(--border);
+  cursor: grab;
 }
+.tp-header:active { cursor: grabbing; }
 .tp-label { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .5px; }
 .tp-controls { display: flex; gap: 6px; }
 .tp-controls button {
@@ -435,6 +437,26 @@ select { cursor: pointer; }
 }
 .tp-controls button:hover { color: var(--text1); background: var(--surface3); }
 
+#btn-ai-explain {
+  width: auto;
+  height: auto;
+  min-height: 24px;
+  white-space: nowrap;
+  padding: 0 8px;
+  background: rgba(77, 188, 155, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(77, 188, 155, 0.3);
+  font-weight: 600;
+  gap: 4px;
+}
+#btn-ai-explain:hover {
+  background: rgba(77, 188, 155, 0.2);
+  color: var(--accent2);
+}
+
+#tp-result b, #tp-result strong, #tp-ai-result b, #tp-ai-result strong { color: var(--accent); }
+#tp-result ul, #tp-ai-result ul { margin-left: 18px; margin-top: 6px; }
+#tp-result li, #tp-ai-result li { margin-bottom: 6px; }
 #tp-original {
   padding: 10px 14px;
   font-size: 13px; color: var(--text2);
@@ -447,7 +469,19 @@ select { cursor: pointer; }
   padding: 10px 14px 14px;
   font-size: 14px; font-weight: 500; color: var(--text1);
   line-height: 1.6;
+  max-height: 150px; overflow-y: auto;
 }
+#tp-ai-result {
+  padding: 12px 14px 14px;
+  font-size: 14px; font-weight: 400; color: var(--text1);
+  line-height: 1.6;
+  background: rgba(0, 212, 170, 0.05);
+  border-top: 1px dashed var(--border);
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+  max-height: 250px; overflow-y: auto;
+}
+#tp-ai-result.hidden { display: none; }
 .tp-loading { color: var(--text3); font-size: 13px; }
 
 /* ─── Panel Overlay ─────────────────────────────── */

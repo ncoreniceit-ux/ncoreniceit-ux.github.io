@@ -1,6 +1,17 @@
 const { app, BrowserWindow, ipcMain, Notification, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
+let geminiApiKey = '';
+try {
+  const envContent = fs.readFileSync(path.join(__dirname, '.env'), 'utf8');
+  const match = envContent.match(/^GEMINI_API_KEY=(.*)$/m);
+  if (match) geminiApiKey = match[1].trim();
+} catch (e) {
+  console.log('No .env file found.');
+}
+
+ipcMain.handle('get-gemini-key', () => geminiApiKey);
 let alarmInterval = null;
 let tray = null;
 let mainWindow = null;

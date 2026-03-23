@@ -1236,10 +1236,97 @@ function initEvents() {
   $('btn-close-goal-modal').addEventListener('click',  () => closeModal('modal-goal'));
 
   // Translation popup
-  $('btn-close-trans').addEventListener('click', () => $('trans-popup').classList.add('hidden'));
+  $('btn-close-trans').addEventListener('click', () => {
+    $('trans-popup').classList.add('hidden');
+    $('tp-ai-result').classList.add('hidden');
+    $('tp-ai-result').innerHTML = '';
+  });
   $('btn-copy-trans').addEventListener('click', () => {
-    const text = $('tp-result').textContent;
-    navigator.clipboard.writeText(text).then(() => showToast('📋 Đã sao chép bản dịch'));
+    const text = $('tp-result').textContent + '\n\n' + $('tp-ai-result').textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => showToast('📋 Đã sao chép bản dịch'));
+  });
+
+  // Make popup draggable
+  const popup = $('trans-popup');
+  const header = popup.querySelector('.tp-header');
+  let isDraggingPopup = false, popupOffsetX, popupOffsetY;
+
+  header.addEventListener('mousedown', (e) => {
+    if (e.target.closest('button')) return; // ignore button clicks
+    isDraggingPopup = true;
+    const rect = popup.getBoundingClientRect();
+    popupOffsetX = e.clientX - rect.left;
+    popupOffsetY = e.clientY - rect.top;
+    
+    // Switch from bottom/right constraints to free absolute top/left to allow dragging anywhere
+    popup.style.bottom = 'auto';
+    popup.style.right = 'auto';
+    popup.style.left = rect.left + 'px';
+    popup.style.top = rect.top + 'px';
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!isDraggingPopup) return;
+    popup.style.left = (e.clientX - popupOffsetX) + 'px';
+    popup.style.top = (e.clientY - popupOffsetY) + 'px';
+  });
+  document.addEventListener('mouseup', () => { isDraggingPopup = false; });
+
+  // ✨ Gemini AI Smart Explain
+  $('btn-ai-explain').addEventListener('click', async () => {
+    const textToExplain = $('tp-original').textContent.trim();
+    if (!textToExplain) return;
+
+    $('tp-ai-result').classList.remove('hidden');
+    $('tp-ai-result').innerHTML = '<span class="tp-loading">✨ AI đang phân tích dữ liệu...</span>';
+    
+    try {
+      const apiKey = await window.electronAPI.getGeminiApiKey();
+      if (!apiKey) {
+        throw new Error("Missing GEMINI_API_KEY in .env");
+      }
+      const prompt = `Đóng vai một dịch giả chuyên nghiệp. Dịch đoạn văn sau sang tiếng Việt một cách mượt mà và tự nhiên nhất dựa trên ngữ cảnh học thuật. Sau khi dịch xong, hãy xuống dòng và dùng định dạng bullet points để GIẢI THÍCH cực kỳ ngắn gọn các thuật ngữ chuyên môn khó hiểu (nếu có):\n\n"${textToExplain}"`;
+      
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/interactions`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
+        },
+        body: JSON.stringify({
+          model: 'gemini-3-flash-preview',
+          input: prompt
+        })
+      });
+
+      const data = await response.json();
+      if (data.error) throw new Error(data.error.message);
+      
+      // Extract the new API response format
+      let aiText = '';
+      
+      // Parse Gemini 3 /interactions format natively
+      if (data.outputs && Array.isArray(data.outputs)) {
+        const textObj = data.outputs.find(o => o.type === 'text');
+        if (textObj) aiText = textObj.text;
+      }
+      
+      // Fallback handlers
+      if (!aiText && data.candidates && data.candidates.length > 0) {
+        aiText = data.candidates[0].text || (data.candidates[0].content && data.candidates[0].content.parts[0].text);
+      }
+      if (!aiText) aiText = data.text || data.output || data.reply || data.response;
+      if (!aiText) aiText = "Raw response: " + JSON.stringify(data);
+      
+      // Simple Markdown parser
+      aiText = aiText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+      aiText = aiText.replace(/\*(.*?)\*/g, '<i>$1</i>');
+      aiText = aiText.replace(/\n\n/g, '<br><br>');
+      aiText = aiText.replace(/\n/g, '<br>');
+      
+      $('tp-ai-result').innerHTML = aiText;
+    } catch (e) {
+      $('tp-ai-result').innerHTML = `<span style="color:var(--danger)">Lỗi: ${e.message}</span>`;
+    }
   });
 }
 
