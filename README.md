@@ -76,3 +76,8 @@ Người dùng có 2 tuỳ chọn sử dụng dựa trên nhu cầu:
 **[v1.8.0] Native macOS Scheduled Alarms & IPC**
 - *Feature*: Xóa bỏ hoàn toàn hạn chế của Web Notifications. Tích hợp trực tiếp hệ thống nhắc lịch đọc sách (Alarms) vào lõi Node.js của Electron thông qua kênh giao tiếp IPC.
 - *Reliability*: Đảm bảo thông báo hiển thị dưới dạng Native Notification của hệ điều hành, giải quyết triệt để tình trạng trình duyệt đóng băng tiến trình ngầm (tab throttling) và tương thích hoàn toàn với Focus Mode.
+
+**[v1.9.0] Native macOS Menu Bar & Background Mode**
+- *System Tray*: Ứng dụng tích hợp thẳng vào thanh Menu Bar (Top Status Bar) của macOS bằng icon chuyên dụng, cho phép chạy ngầm hoàn toàn mà không chiếm dụng diện tích trên Dock.
+- *Single-Instance Lock*: Ứng dụng tự động phát hiện nếu bản thân đang chạy ngầm. Khi gọi lệnh mở app mới, app đang chạy ngầm sẽ tự động khôi phục lên màn hình chính, ngăn chặn tình trạng tràn RAM hay xung đột Database IO lỗi.
+- *Interactive Notifications*: Click trực tiếp vào banner thông báo (Native Notification) để gọi ứng dụng xuất hiện trở lại ngay lập tức từ chế độ chạy ngầm.

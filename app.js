@@ -976,6 +976,7 @@ function renderSettingsPanel() {
 
       <button class="btn-save-reminder" id="btn-save-remind">💾 Lưu cài đặt nhắc nhở</button>
       <button class="btn-test-notif" id="btn-test-notif">🔔 Gửi thông báo thử ngay</button>
+      <button class="btn-ghost" id="btn-run-background" style="margin-top:8px; width:100%;">⏬ Chạy ngầm (Background)</button>
     </div>
 
     <div class="settings-section">
@@ -1046,6 +1047,19 @@ function renderSettingsPanel() {
     swSend('TEST_NOTIFICATION');
     showToast('📨 Đã gửi thông báo thử');
   });
+
+  // Run in background
+  const btnRunBg = $('btn-run-background');
+  if (btnRunBg) {
+    btnRunBg.addEventListener('click', () => {
+      if (window.electronAPI) {
+        window.electronAPI.runInBackground();
+        showToast('⏬ Ứng dụng đang chạy ngầm!');
+      } else {
+        showToast('⚠️ Chỉ hỗ trợ phiên bản Desktop!');
+      }
+    });
+  }
 }
 
 // ─────────────────────────────────────────────
