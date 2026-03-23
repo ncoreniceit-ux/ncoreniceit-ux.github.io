@@ -68,3 +68,7 @@ Người dùng có 2 tuỳ chọn sử dụng dựa trên nhu cầu:
 **[v1.6.1] Vượt Qua Giới Hạn Native WebKit (Scrollbar Map & Instant Resume)**
 - *Fix/Polish*: Cấu trúc lại bộ thuộc tính `aspect-ratio` cho phép Thumbnail giữ nguyên chiều cao dù chưa render. Gom nhóm chuỗi CSS Gradient giúp vẽ Bản đồ "Đã đọc" (Read Map) lên rãnh cuộn chính xác tới từng Pixel mà không bị WebKit từ chối vẽ lại.
 - Tối ưu Cảm giác Đọc: Loại bỏ rào cản Animation gây cản trở và chậm lag khi vừa Load PDF. App lúc này ngay lập tức *teleport* bạn đến vị trí trang đang đọc dở (Instant Resume) chỉ trong 1 khung hình.
+
+**[v1.7.0] Desktop App Support (Electron)**
+- *Feature*: Chuyển đổi toàn bộ trải nghiệm ứng dụng Web thành ứng dụng Desktop độc lập thực thụ dành cho macOS (và Windows) thông qua thư viện bao bọc Electron.
+- *Native UX*: Hỗ trợ mở app trong cửa sổ tĩnh chuyên biệt. Tích hợp sẵn sàng hệ thống môi trường: khởi chạy 1-code-dòng thông qua lệnh `npm start`.

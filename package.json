@@ -1,0 +1,25 @@
+{
+  "name": "pdf_assistant",
+  "version": "1.0.0",
+  "description": "**Mô tả**: Ứng dụng đọc sách PDF nền web thông minh được thiết kế theo phong cách Dark Mode chuyên nghiệp. Tích hợp sâu công cụ dịch thuật tiện lợi, hệ thống quản lý mục tiêu (KPI) và ghi chú trực tiếp ngay trên trang. Hỗ trợ đa nền tảng nhờ sức mạnh của PWA (Progressive Web App - có thể cài đặt như app độc lập trên mọi thiết bị).",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ncoreniceit-ux/easyread.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ncoreniceit-ux/easyread/issues"
+  },
+  "homepage": "https://github.com/ncoreniceit-ux/easyread#readme",
+  "dependencies": {
+    "electron": "^41.0.3"
+  }
+}
