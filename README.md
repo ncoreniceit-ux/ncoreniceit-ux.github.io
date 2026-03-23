@@ -81,3 +81,8 @@ Người dùng có 2 tuỳ chọn sử dụng dựa trên nhu cầu:
 - *System Tray*: Ứng dụng tích hợp thẳng vào thanh Menu Bar (Top Status Bar) của macOS bằng icon chuyên dụng, cho phép chạy ngầm hoàn toàn mà không chiếm dụng diện tích trên Dock.
 - *Single-Instance Lock*: Ứng dụng tự động phát hiện nếu bản thân đang chạy ngầm. Khi gọi lệnh mở app mới, app đang chạy ngầm sẽ tự động khôi phục lên màn hình chính, ngăn chặn tình trạng tràn RAM hay xung đột Database IO lỗi.
 - *Interactive Notifications*: Click trực tiếp vào banner thông báo (Native Notification) để gọi ứng dụng xuất hiện trở lại ngay lập tức từ chế độ chạy ngầm.
+
+**[v2.0.0] Trợ lý thông minh Gemini AI (Smart Translate & Explain)**
+- *AI Explanation*: Nâng cấp mạnh mẽ công cụ Dịch thuật Song ngôn với tính năng "✨ Hỏi AI". Ứng dụng giờ đây kết nối trực tiếp với API `gemini-3-flash-preview` đời mới nhất của Google thông qua chuẩn Endpoint thế hệ mới.
+- *Draggable Popup & Markdown*: Cho phép người dùng linh hoạt cầm nắm (drag) Popup dịch thuật đi bất cứ đâu trên trang giấy. Phản hồi chuyên sâu từ AI được parse cấu trúc Markdown (bôi đậm, thẻ list chi tiết) và xếp song song dưới bản dịch thường, không gây che lấp nội dung.
+- *Security*: Toàn bộ chuỗi cấu hình API Key được bảo mật chặt chẽ trong hệ thống tệp `.env` chạy ẩn và luân chuyển xuống giao diện GUI qua cầu nối rẽ nhánh Preload/IPC khép kín an toàn.
