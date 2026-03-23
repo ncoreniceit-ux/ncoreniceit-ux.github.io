@@ -935,7 +935,11 @@ function getReminder() {
 
 function saveReminder(cfg) {
   localStorage.setItem(SK.REMIND, JSON.stringify(cfg));
-  swSend('SET_REMINDER', cfg);
+  if (window.electronAPI) {
+    window.electronAPI.setAlarm({ time: cfg.time, isEnabled: cfg.enabled });
+  } else {
+    swSend('SET_REMINDER', cfg);
+  }
 }
 
 async function requestNotifPermission() {
@@ -1032,6 +1036,11 @@ function renderSettingsPanel() {
 
   // Test notification
   $('btn-test-notif').addEventListener('click', async () => {
+    if (window.electronAPI) {
+      window.electronAPI.testNotification();
+      showToast('📨 Đã gửi thông báo thử');
+      return;
+    }
     const granted = await requestNotifPermission();
     if (!granted) { showToast('⚠️ Cần cấp quyền thông báo'); return; }
     swSend('TEST_NOTIFICATION');
@@ -1346,7 +1355,13 @@ async function init() {
 
   // Restore reminder settings to SW if any
   const rem = getReminder();
-  if (rem.enabled) swSend('SET_REMINDER', { ...rem, key: 'reminder' });
+  if (rem.enabled) {
+    if (window.electronAPI) {
+      window.electronAPI.setAlarm({ time: rem.time, isEnabled: rem.enabled });
+    } else {
+      swSend('SET_REMINDER', { ...rem, key: 'reminder' });
+    }
+  }
   
   renderLibrary();
 }

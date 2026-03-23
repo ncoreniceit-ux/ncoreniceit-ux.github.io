@@ -72,3 +72,7 @@ Người dùng có 2 tuỳ chọn sử dụng dựa trên nhu cầu:
 **[v1.7.0] Desktop App Support (Electron)**
 - *Feature*: Chuyển đổi toàn bộ trải nghiệm ứng dụng Web thành ứng dụng Desktop độc lập thực thụ dành cho macOS (và Windows) thông qua thư viện bao bọc Electron.
 - *Native UX*: Hỗ trợ mở app trong cửa sổ tĩnh chuyên biệt. Tích hợp sẵn sàng hệ thống môi trường: khởi chạy 1-code-dòng thông qua lệnh `npm start`.
+
+**[v1.8.0] Native macOS Scheduled Alarms & IPC**
+- *Feature*: Xóa bỏ hoàn toàn hạn chế của Web Notifications. Tích hợp trực tiếp hệ thống nhắc lịch đọc sách (Alarms) vào lõi Node.js của Electron thông qua kênh giao tiếp IPC.
+- *Reliability*: Đảm bảo thông báo hiển thị dưới dạng Native Notification của hệ điều hành, giải quyết triệt để tình trạng trình duyệt đóng băng tiến trình ngầm (tab throttling) và tương thích hoàn toàn với Focus Mode.
